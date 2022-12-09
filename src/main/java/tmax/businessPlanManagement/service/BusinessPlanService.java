@@ -11,6 +11,8 @@ import tmax.businessPlanManagement.repository.BusinessPlanRepository;
 import tmax.businessPlanManagement.repository.EmployeeRepository;
 import tmax.businessPlanManagement.repository.ProductRepository;
 
+import java.util.ArrayList;
+import java.util.IdentityHashMap;
 import java.util.List;
 
 @Service
@@ -40,17 +42,20 @@ public class BusinessPlanService {
     }
 
     public List<BusinessPlan> findByPart(String part) {
-        Product product = productRepository.findByPart(part).get();
-        return businessPlanRepository.findByProduct(product);
+        return businessPlanRepository.findByProduct(productRepository.findByPart(part).get());
     }
 
     public List<BusinessPlan> findByName(String name) {
-        Employee employee = new Employee();
         return businessPlanRepository.findByEmployee(employeeRepository.findByName(name).get());
     }
 
     public List<BusinessPlan> findByDepartment(String department) {
-        Employee employee = new Employee();
-        return businessPlanRepository.findByEmployee(employeeRepository.findByDepartment(department).get());
+        List<BusinessPlan> list = new ArrayList<>();
+        for (Employee e : employeeRepository.findByDepartment(department)) {
+            for (BusinessPlan b : businessPlanRepository.findByEmployee(e)) {
+                list.add(b);
+            }
+        }
+        return list;
     }
 }

@@ -24,4 +24,8 @@ public class EmployeeService {
     public Employee findByName(String name) {
         return employeeRepository.findByName(name).get();
     }
+
+    public List<Employee> findByDepartment(String department) {
+        return employeeRepository.findByDepartment(department);
+    }
 }

@@ -12,6 +12,5 @@ public interface EmployeeRepository extends JpaRepository<Employee,Long> {
 
     Employee save(Employee employee);
     Optional<Employee> findByName(String name);
-    Optional<Employee> findByDepartment(String department);
-
+    List<Employee> findByDepartment(String department);
 }

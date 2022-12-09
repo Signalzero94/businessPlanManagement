@@ -14,8 +14,10 @@ import tmax.businessPlanManagement.repository.ProductRepository;
 import tmax.businessPlanManagement.service.BusinessPlanService;
 import tmax.businessPlanManagement.service.EmployeeService;
 
+import javax.persistence.EntityManager;
+import java.sql.SQLOutput;
+import java.util.ArrayList;
 import java.util.List;
-
 
 @SpringBootTest
 @Transactional
@@ -33,89 +35,99 @@ class BusinessPlanTest {
     @Autowired
     EmployeeService employeeService;
 
-    @Commit
+    EntityManager em;
     @Test
     void BusinessPlanServiceTest() {
         //인사정보 등록
-        Employee employee = new Employee();
-        employee.setName("호영");
-        Employee employee1 = new Employee();
-        employee1.setName("팀장");
+        Employee employee = Employee.builder()
+                .name("호영")
+                .department("FC2-1")
+                .build();
+        Employee employee1 = Employee.builder()
+                .name("팀장")
+                .department("FC2-1")
+                .build();
+
         employeeService.save(employee);
         employeeService.save(employee1);
 
         //제품정보 등록
-        Product product = new Product();
-        product.setPart("superApp");
+        Product product = Product.builder()
+                .part("superApp")
+                .build();
         productRepository.save(product);
 
         //결재정보 등록
-        Approval approval = new Approval();
-        approval.setApprovalType("합의");
-        approval.setEmployee(employee1);
-        Approval approval1 = new Approval();
-        approval.setApprovalType("결재");
-        approval.setEmployee(employee1);
-        approvalRepository.save(approval1);
+        Approval approval = Approval.builder()
+                .approvalType("합의")
+                .employee(employee1)
+                .build();
         approvalRepository.save(approval);
 
         //사업계획 정보 등록
-        BusinessPlan businessPlan = new BusinessPlan();
-        businessPlan.setApprovalList(approvalRepository.findAll());
-        businessPlan.setPlanYear(2022L);
-        businessPlan.setStatus(SubmitStatus.UNCOMPLETED);
-        businessPlan.setProduct(product);
-        businessPlan.setPrice(10000L);
-        businessPlan.setEmployee(employee);
+        BusinessPlan businessPlan = BusinessPlan.builder()
+                .approvalList(approvalRepository.findAll())
+                .planYear(2022L)
+                .submitStatus(SubmitStatus.UNCOMPLETED)
+                .product(product)
+                .salesAmount(10000L)
+                .employee(employee)
+                .build();
         Long saveId = businessPlanService.save(businessPlan);
 
         Assertions.assertThat("호영").isEqualTo(businessPlanService.findById(saveId).getEmployee().getName());
     }
 
     @Test
-    @Commit
     void findBySomethingTest() {
-        Employee employee = new Employee();
-        employee.setName("호영");
-        Employee employee1 = new Employee();
-        employee1.setName("팀장");
-        Employee employee2 = new Employee();
-        employee2.setName("실장");
+        Employee employee = Employee.builder()
+                .name("호영")
+                .department("FC2-1")
+                .build();
+        Employee employee1 = Employee.builder()
+                .name("팀장")
+                .department("FC2-1")
+                .build();
+        Employee employee2 = Employee.builder()
+                .name("실장")
+                .department("FC본부")
+                .build();
         employeeService.save(employee);
         employeeService.save(employee1);
         employeeService.save(employee2);
 
         //제품정보 등록
-        Product product = new Product();
-        product.setPart("superApp");
+        Product product = Product.builder()
+                .part("superApp")
+                .build();
         productRepository.save(product);
 
-        BusinessPlan businessPlan = new BusinessPlan();
-
         //결재정보 등록
-        Approval approval = new Approval();
-        approval.setApprovalType("합의");
-        approval.setEmployee(employee1);
-        approval.setBusinessPlan(businessPlan);
-
-        Approval approval1 = new Approval();
-        approval1.setApprovalType("결재");
-        approval1.setEmployee(employee2);
-        approval1.setBusinessPlan(businessPlan);
-
-
+        Approval approval = Approval.builder()
+                .approvalType("합의")
+                .employee(employee1)
+                .build();
         approvalRepository.save(approval);
+
+        Approval approval1 = Approval.builder()
+                .approvalType("결재")
+                .employee(employee2)
+                .build();
         approvalRepository.save(approval1);
 
         //사업계획 정보 등록
-        businessPlan.setApprovalList(approvalRepository.findAll());
-        businessPlan.setPlanYear(2022L);
-        businessPlan.setStatus(SubmitStatus.UNCOMPLETED);
-        businessPlan.setProduct(product);
-        businessPlan.setPrice(10000L);
-        businessPlan.setEmployee(employee);
+        BusinessPlan businessPlan = BusinessPlan.builder()
+                .approvalList(approvalRepository.findAll())
+                .planYear(2022L)
+                .submitStatus(SubmitStatus.UNCOMPLETED)
+                .product(product)
+                .salesAmount(10000L)
+                .employee(employee)
+                .build();
         Long saveId = businessPlanService.save(businessPlan);
 
+        approval.setBusinessPlan(businessPlan);
+        approval1.setBusinessPlan(businessPlan);
 
         //사업년도로 찾기
         List<BusinessPlan> businessPlans = businessPlanService.findByPlanYear(2022l);
@@ -123,50 +135,57 @@ class BusinessPlanTest {
         Assertions.assertThat(businessPlan).isEqualTo(businessPlans.get(0));
     }
 
-    @Commit
-    @Test
+//    @Commit
+//    @Test
     void findByProductPart() {
-        Employee employee = new Employee();
-        employee.setName("호영");
-        Employee employee1 = new Employee();
-        employee1.setName("팀장");
-        Employee employee2 = new Employee();
-        employee2.setName("실장");
+        Employee employee = Employee.builder()
+                .name("호영")
+                .department("FC2-1")
+                .build();
+        Employee employee1 = Employee.builder()
+                .name("팀장")
+                .department("FC2-1")
+                .build();
+        Employee employee2 = Employee.builder()
+                .name("실장")
+                .department("FC본부")
+                .build();
         employeeService.save(employee);
         employeeService.save(employee1);
         employeeService.save(employee2);
 
         //제품정보 등록
-        Product product = new Product();
-        product.setPart("superApp");
+        Product product = Product.builder()
+                .part("superApp")
+                .build();
         productRepository.save(product);
 
-        //사업계획 생성
-        BusinessPlan businessPlan = new BusinessPlan();
-
         //결재정보 등록
-        Approval approval = new Approval();
-        approval.setApprovalType("합의");
-        approval.setEmployee(employee1);
-        approval.setBusinessPlan(businessPlan);
-
-        Approval approval1 = new Approval();
-        approval1.setApprovalType("결재");
-        approval1.setEmployee(employee2);
-        approval1.setBusinessPlan(businessPlan);
-
+        Approval approval = Approval.builder()
+                .approvalType("합의")
+                .employee(employee1)
+                .build();
         approvalRepository.save(approval);
+
+        Approval approval1 = Approval.builder()
+                .approvalType("결재")
+                .employee(employee2)
+                .build();
         approvalRepository.save(approval1);
 
         //사업계획 정보 등록
-        businessPlan.setApprovalList(approvalRepository.findByBusinessPlan(businessPlan));
-        businessPlan.setPlanYear(2022L);
-        businessPlan.setStatus(SubmitStatus.UNCOMPLETED);
-        businessPlan.setProduct(product);
-        businessPlan.setPrice(10000L);
-        businessPlan.setEmployee(employee);
+        BusinessPlan businessPlan = BusinessPlan.builder()
+                .approvalList(approvalRepository.findAll())
+                .planYear(2022L)
+                .submitStatus(SubmitStatus.UNCOMPLETED)
+                .product(product)
+                .salesAmount(10000L)
+                .employee(employee)
+                .build();
         Long saveId = businessPlanService.save(businessPlan);
 
+        approval.setBusinessPlan(businessPlan);
+        approval1.setBusinessPlan(businessPlan);
 
         List<BusinessPlan> businessPlans = businessPlanRepository.findByProduct(product);
         Assertions.assertThat(businessPlan).isEqualTo(businessPlans.get(0));
@@ -177,49 +196,58 @@ class BusinessPlanTest {
 
     }
 
-//    @Commit
-//    @Test
+    @Commit
+    @Test
     void findByEmployeeTest() {
-        Employee employee = new Employee();
-            employee.setName("호영");
-            employee.setDepartment("FC2-1");
-            Employee employee1 = new Employee();
-            employee1.setName("팀장");
-            Employee employee2 = new Employee();
-            employee2.setName("실장");
+        Employee employee = Employee.builder()
+                .name("호영")
+                .department("FC2-1")
+                .build();
+        Employee employee1 = Employee.builder()
+                .name("팀장")
+                .department("FC2-2")
+                .build();
+        Employee employee2 = Employee.builder()
+                .name("실장")
+                .department("FC본부")
+                .build();
+
             employeeService.save(employee);
             employeeService.save(employee1);
             employeeService.save(employee2);
 
             //제품정보 등록
-            Product product = new Product();
-            product.setPart("superApp");
+        Product product = Product.builder()
+                .part("superApp")
+                .build();
             productRepository.save(product);
 
-            //사업계획 생성
-        BusinessPlan businessPlan = new BusinessPlan();
-
         //결재정보 등록
-        Approval approval = new Approval();
-        approval.setApprovalType("합의");
-        approval.setEmployee(employee1);
-        approval.setBusinessPlan(businessPlan);
+        Approval approval = Approval.builder()
+                .approvalType("합의")
+                .employee(employee1)
+                .build();
         approvalRepository.save(approval);
 
-        Approval approval1 = new Approval();
-        approval1.setApprovalType("결재");
-        approval1.setEmployee(employee2);
-        approval1.setBusinessPlan(businessPlan);
+        Approval approval1 = Approval.builder()
+                .approvalType("결재")
+                .employee(employee2)
+                .build();
         approvalRepository.save(approval1);
 
-            //사업계획 정보 등록
-        businessPlan.setApprovalList(approvalRepository.findAll());
-        businessPlan.setPlanYear(2022L);
-        businessPlan.setStatus(SubmitStatus.UNCOMPLETED);
-        businessPlan.setProduct(product);
-        businessPlan.setPrice(10000L);
-        businessPlan.setEmployee(employee);
+        //사업계획 정보 등록
+        BusinessPlan businessPlan = BusinessPlan.builder()
+                .approvalList(approvalRepository.findAll())
+                .planYear(2022L)
+                .submitStatus(SubmitStatus.UNCOMPLETED)
+                .product(product)
+                .salesAmount(10000L)
+                .employee(employee)
+                .build();
         Long saveId = businessPlanService.save(businessPlan);
+
+        approval.setBusinessPlan(businessPlan);
+        approval1.setBusinessPlan(businessPlan);
 
         List<BusinessPlan> businessPlans = businessPlanRepository.findByEmployee(employee);
         Assertions.assertThat(businessPlan).isEqualTo(businessPlans.get(0));
@@ -228,9 +256,168 @@ class BusinessPlanTest {
         Assertions.assertThat(businessPlan).isEqualTo(businessPlans1.get(0));
         Assertions.assertThat(businessPlans).isEqualTo(businessPlans1);
 
-        List<BusinessPlan> businessPlans2 = businessPlanService.findByDepartment("FC2-1");
-        Assertions.assertThat(businessPlan).isEqualTo(businessPlans2.get(0));
-        Assertions.assertThat(businessPlans).isEqualTo(businessPlans2);
-
+//        List<BusinessPlan> businessPlans2 = businessPlanService.findByDepartment("FC2-1");
+//        Assertions.assertThat(businessPlan).isEqualTo(businessPlans2.get(0));
         }
+    @Test
+    @Commit
+    void 양방향매핑확인() {
+        Employee employee = Employee.builder()
+                .name("호영")
+                .department("FC2-1")
+                .build();
+        Employee employee1 = Employee.builder()
+                .name("팀장")
+                .department("FC2-1")
+                .build();
+        Employee employee2 = Employee.builder()
+                .name("실장")
+                .department("FC본부")
+                .build();
+        employeeService.save(employee);
+        employeeService.save(employee1);
+        employeeService.save(employee2);
+
+        //제품정보 등록
+        Product product = Product.builder()
+                .part("superApp")
+                .build();
+        productRepository.save(product);
+
+        //사업계획 정보 등록
+        BusinessPlan businessPlan1 = BusinessPlan.builder()
+                .planYear(2022L)
+                .submitStatus(SubmitStatus.UNCOMPLETED)
+                .product(product)
+                .salesAmount(10000L)
+                .employee(employee)
+                .approvalList(new ArrayList<>())
+                .build();
+        businessPlanService.save(businessPlan1);
+
+        BusinessPlan businessPlan2 = BusinessPlan.builder()
+                .employee(employee1)
+                .submitStatus(SubmitStatus.COMPLETED)
+                .approvalList(new ArrayList<>())
+                .salesAmount(20000L)
+                .build();
+        businessPlanService.save(businessPlan2);
+        //결재정보 등록
+        Approval approval1 = Approval.builder()
+                .approvalType("합의")
+                .employee(employee1)
+                .businessPlan(businessPlan1)
+                .build();
+        approvalRepository.save(approval1);
+
+        Approval approval2 = Approval.builder()
+                .approvalType("결재")
+                .employee(employee2)
+                .businessPlan(businessPlan1)
+                .build();
+        approvalRepository.save(approval2);
+
+        businessPlan1.saveApprovalsToPlan(approvalRepository.findByBusinessPlan(businessPlan1));
+
+        System.out.println("---------------------------------------------");
+        for (Approval a : businessPlan1.getApprovalList()) {
+            System.out.println("사업계획 = " + a.getBusinessPlan());
+            System.out.println("결재자명 = " + a.getEmployee().getName());
+        }
+        System.out.println("---------------------------------------------");
+    }
+    @Test
+    @Commit
+    void 부서로_사업계획찾기() {
+        Employee employee = Employee.builder()
+                .name("호영")
+                .department("FC2-1")
+                .build();
+        Employee employee1 = Employee.builder()
+                .name("팀장")
+                .department("FC2-1")
+                .build();
+        Employee employee2 = Employee.builder()
+                .name("실장")
+                .department("FC본부")
+                .build();
+        Employee employee3 = Employee.builder()
+                .name("팀원")
+                .department("FC2-1")
+                .build();
+
+        employeeService.save(employee);
+        employeeService.save(employee1);
+        employeeService.save(employee2);
+        employeeService.save(employee3);
+
+
+        //제품정보 등록
+        Product product = Product.builder()
+                .part("superApp")
+                .build();
+        productRepository.save(product);
+
+        //사업계획 정보 등록
+        BusinessPlan businessPlan1 = BusinessPlan.builder()
+                .planYear(2022L)
+                .submitStatus(SubmitStatus.UNCOMPLETED)
+                .product(product)
+                .salesAmount(10000L)
+                .employee(employee)
+                .approvalList(new ArrayList<>())
+                .build();
+        businessPlanService.save(businessPlan1);
+
+        BusinessPlan businessPlan2 = BusinessPlan.builder()
+                .employee(employee1)
+                .submitStatus(SubmitStatus.COMPLETED)
+                .approvalList(new ArrayList<>())
+                .salesAmount(20000L)
+                .build();
+        businessPlanService.save(businessPlan2);
+
+        BusinessPlan businessPlan3 = BusinessPlan.builder()
+                .employee(employee3)
+                .submitStatus(SubmitStatus.UNCOMPLETED)
+                .approvalList(new ArrayList<>())
+                .salesAmount(25000L)
+                .build();
+        businessPlanService.save(businessPlan3);
+
+        BusinessPlan businessPlan4 = BusinessPlan.builder()
+                .employee(employee2)
+                .approvalList(new ArrayList<>())
+                .build();
+        businessPlanService.save(businessPlan4);
+
+
+        //결재정보 등록
+        Approval approval1 = Approval.builder()
+                .approvalType("합의")
+                .employee(employee1)
+                .businessPlan(businessPlan1)
+                .build();
+        approvalRepository.save(approval1);
+
+        Approval approval2 = Approval.builder()
+                .approvalType("결재")
+                .employee(employee2)
+                .businessPlan(businessPlan1)
+                .build();
+        approvalRepository.save(approval2);
+
+        businessPlan1.saveApprovalsToPlan(approvalRepository.findByBusinessPlan(businessPlan1));
+
+        List<BusinessPlan> businessPlans = businessPlanService.findByDepartment("FC2-1");
+
+        for (BusinessPlan b : businessPlans) {
+            System.out.println("FC2-1팀 사업계획 = " + b);
+        }
+
+        System.out.println("-----------------------------");
+        for (BusinessPlan c : businessPlanService.findAll()) {
+            System.out.println(c);
+        }
+    }
 }

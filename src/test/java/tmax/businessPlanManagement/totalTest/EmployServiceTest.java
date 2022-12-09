@@ -21,8 +21,9 @@ public class EmployServiceTest {
 
     @Test
     void 인사정보테스트() {
-        Employee employee = new Employee();
-        employee.setName("호영");
+        Employee employee = Employee.builder()
+                .name("호영")
+                .build();
         employeeService.save(employee);
 
         Assertions.assertThat(employee).isEqualTo(employeeService.findByName("호영"));
