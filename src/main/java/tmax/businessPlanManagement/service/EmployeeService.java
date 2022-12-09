@@ -1,8 +1,6 @@
 package tmax.businessPlanManagement.service;
 
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import org.springframework.beans.factory.annotation.Required;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tmax.businessPlanManagement.domain.Employee;

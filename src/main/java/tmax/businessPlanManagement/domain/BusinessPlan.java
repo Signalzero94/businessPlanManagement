@@ -139,7 +139,6 @@ public class BusinessPlan {
         this.planYear = planYear;
         this.submitStatus = submitStatus;
     }
-
     public void saveApprovalsToPlan(@NotNull List<Approval> approvalList) {
         for (Approval a : approvalList) {
             this.getApprovalList().add(a);
